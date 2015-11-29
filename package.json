@@ -1,0 +1,15 @@
+{
+  "name": "wgs_mod",
+  "version": "0.0.1",
+  "description": "location layer.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://ilachu@bitbucket.org/ilachu/wgs_mod.git"
+  },
+  "author": "LakshmiNarayanan SV",
+  "license": "closed"
+}

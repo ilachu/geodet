@@ -1,0 +1,4 @@
+The modulev0.0.1 uses Haversine Formula.
+
+coordDistance({lat1:'',lng1:'',lat2:'',lng2:''}) 
+= > distance(kms) 
