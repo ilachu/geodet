@@ -1,10 +1,20 @@
-var wgsMod = {};
-Number.prototype.pow = function( n ) {
+var location = function ( lat , lng ){
+	function toRad( degrees ) {
+		return degrees * Math.PI / 180;
+	}
+	this.lat = lat;
+	this.lng = lng;
+	this.latRad = toRad( lat );
+	this.lngRad = toRad( lng );
+};
+
+Number.prototype.pow = function ( n ) {
 	return Math.pow( this , n );
 };
-Number.prototype.toRad = function (){
-  return ( this * 3.14 ) / 180;
+Number.prototype.isPositive = function () {
+	return this === 0 || this > 0;
 };
+//Math functions - better readability
 function sin( theta ) {  
 	return Math.sin( theta );
 }
@@ -16,14 +26,14 @@ function cos( theta ) {
 }
 function cos2( theta ){
 	return cos( theta ).pow( 2 );
-} //Math functions - better readability
+}
 
-wgsMod.coordDistance = function ( coords ) {  //Vincenty's formulae
+location.prototype.distance = function ( coord ) {
 	var 
-		lat1 = coords.lat1.toRad(),
-		lng1 = coords.lng1.toRad(),
-		lat2 = coords.lat2.toRad(),
-		lng2 = coords.lng2.toRad(), //co-ordinates in degrees
+		lat1 = this.latRad,
+		lng1 = this.lngRad,
+		lat2 = coord.latRad,
+		lng2 = coord.lngRad,
 		//CONSTANTS - Ellipsoidal Earth
 		f = 1/298.257223563, //inverse flattening
 		a = 6378137.0, //semi major axis
@@ -35,16 +45,18 @@ wgsMod.coordDistance = function ( coords ) {  //Vincenty's formulae
 		lambdaP = Math.PI * 2,
 		limit = 20; //while loop
 
-		do { //iterate until L converges to 1e-12
-			sinSigma = Math.sqrt( (cos( U2 ) * sin( lambda )).pow( 2 ) + 
+		do { 	//iterate until L converges to 1e-12
+			sinSigma = Math.sqrt( (cos( U2 ) * sin( lambda ) ).pow( 2 ) + 
 				( cos( U1 ) * sin( U2 ) - sin( U1 ) * cos( U2 ) * cos( lambda ) ).pow( 2 ) );
-			if (!sinSigma) return 0; //co-incident points
+			//co-incident points
+			if (!sinSigma) return 0; 
 			cosSigma = sin( U1 ) * sin( U2 ) + cos( U1 ) * cos( U2 ) * cos( lambda );
 			sigma = Math.atan( sinSigma / cosSigma );
 			sinAlpha = ( cos( U1 ) * cos( U2 ) * sin( lambda ) ) / sin ( sigma );
 			cos2Alpha = 1 - sinAlpha.pow( 2 );
 			cosTwoSigmaBaseM = cosSigma - ( ( 2 * sin( U1 ) * sin( U2 ) ) / cos2Alpha );
-			if (!cosTwoSigmaBaseM) cosTwoSigmaBaseM = 0; //equator
+			//equator
+			if (!cosTwoSigmaBaseM) cosTwoSigmaBaseM = 0; 
 			C = ( f / 16 ) * cos2Alpha * ( 4 + f * ( 4 - 3 * cos2Alpha ));
 			lambdaP = lambda;
 			lambda =  L + ( 1 - C ) * f * sinAlpha * 
@@ -58,35 +70,42 @@ wgsMod.coordDistance = function ( coords ) {  //Vincenty's formulae
 			( cosTwoSigmaBaseM + 0.25 * B * ( cosSigma * ( -1 + 2 * cosTwoSigmaBaseM.pow( 2 ) )  - 
 			( 1 / 6 ) * B * cosTwoSigmaBaseM * ( -3 + 4 * sinAlpha.pow( 2 ) ) * 
 			( -3 + 4 * cosTwoSigmaBaseM ) ) );
-		return b * A * ( sigma - deltaSigma );
+		return b * A * ( sigma - deltaSigma );	
 };
-wgsMod.perimeter = function ( coord , radius ) {
+location.prototype.perimeter = function ( radius ) {
+	var
+		self = this,
+		lat = this.lat,
+		lng = this.lng;
 	return {
-		maxLng : coord.lng + ( 1 / wgsMod.coordDistance ( { 
-			lat1 : coord.lat , 
-			lng1 : coord.lng , 
-			lat2 : coord.lat ,
-			lng2 : coord.lng + 1, 
-		} ) * radius ),
-		maxLat : coord.lat + ( 1 / wgsMod.coordDistance ( {
-			lat1 : coord.lat ,
-			lng1 : coord.lng ,
-			lat2 : coord.lat + 1,
-			lng2 : coord.lng
-		} ) * radius ),
-		minLng : coord.lng - ( 1 / wgsMod.coordDistance ( {
-			lat1 : coord.lat,
-			lng1 : coord.lng,
-			lat2 : coord.lat,
-			lng2 : coord.lng - 1
-		} ) * radius ),
-		minLat : coord.lat - ( 1 / wgsMod.coordDistance ( {
-			lat1 : coord.lat,
-			lng1 : coord.lng,
-			lat2 : coord.lat - 1,
-			lng2 : coord.lng
-		} ) * radius )
+		maxLng : ( function (){
+			var maxLng = lng + ( 1 / self.distance ( new location ( lat , lng + 1 ) ) * radius );
+			if( maxLng > 180 && maxLng.isPositive() ) {
+					return ~( 180 - ( maxLng - 180 ) );
+			}
+			return maxLng;
+		} )(),
+		maxLat : ( function () {
+			var maxLat = lat + ( 1 / self.distance ( new location ( lat + 1 , lng ) ) * radius );
+			if ( maxLat > 90 && maxLat.isPositive() ) {
+					return 90;
+			}
+			return maxLat;
+		} )(),
+		minLng : ( function () {
+			var minLng = lng - ( 1 / self.distance ( new location ( lat , lng - 1 ) ) * radius );
+			if ( -180 > minLng && !minLng.isPostive() ) {
+					return 180 + ( minLng + 180 );
+			}
+			return minLng;
+		} )(),
+		minLat : ( function () {
+			var minLat = lat - ( 1 / self.distance ( new location ( lat - 1 , lng ) ) * radius );
+			if ( minLat < -90 && !minLat.isPositive() ) {
+				return -90;
+			}
+			return minLat;
+		} )()
 	};
 };
-
-module.exports = wgsMod;
+module.exports = location;

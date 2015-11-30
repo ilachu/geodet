@@ -1,8 +1,13 @@
-The modulev0.0.2 uses Vincenty's Formulae.
+The modulev2.0 uses Vincenty's Formulae.
 ( Reference: https://en.wikipedia.org/wiki/Vincenty%27s_formulae )
 
-coordDistance({lat1:'',lng1:'',lat2:'',lng2:''}) 
+USAGE
+
+location1 = new Location( lat , lng )
+
+location1.distance( location2 ) 
 = > distance(m)
 
-perimeter({lat:'',lng:''},radius)
+location1.perimeter( radius )
 => {maxLat:'',minLat:'',maxLng:'',minLng:''}
+//the above range can be used to search the database for co-ordinates in a given radius.

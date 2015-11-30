@@ -1,7 +1,7 @@
 {
-  "name": "wgs_mod",
+  "name": "geodet",
   "version": "0.0.1",
-  "description": "location layer.",
+  "description": "Geodetic system based on WGS'84",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
