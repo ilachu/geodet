@@ -1,4 +1,5 @@
-The modulev0.0.1 uses Haversine Formula.
+The modulev0.0.2 uses Vincenty's Formulae.
+( Reference: https://en.wikipedia.org/wiki/Vincenty%27s_formulae )
 
 coordDistance({lat1:'',lng1:'',lat2:'',lng2:''}) 
-= > distance(kms) 
+= > distance(m) 
