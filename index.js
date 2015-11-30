@@ -59,5 +59,33 @@ wgsMod.coordDistance = function ( coords ) {  //Vincenty's formulae
 			( -3 + 4 * cosTwoSigmaBaseM ) ) );
 		return b * A * ( sigma - deltaSigma );
 };
+wgsMod.perimeter = function ( coord , radius ) {
+	return {
+		maxLng : coord.lng + ( 1 / wgsMod.coordDistance ( { 
+			lat1 : coord.lat , 
+			lng1 : coord.lng , 
+			lat2 : coord.lat ,
+			lng2 : coord.lng + 1, 
+		} ) * radius ),
+		maxLat : coord.lat + ( 1 / wgsMod.coordDistance ( {
+			lat1 : coord.lat ,
+			lng1 : coord.lng ,
+			lat2 : coord.lat + 1,
+			lng2 : coord.lng
+		} ) * radius ),
+		minLng : coord.lat - ( 1 / wgsMod.coordDistance ( {
+			lat1 : coord.lat,
+			lng1 : coord.lng,
+			lat2 : coord.lat,
+			lng2 : coord.lng - 1
+		} ) * radius ),
+		minLat : coord.lat - ( 1 / wgsMod.coordDistance ( {
+			lat1 : coord.lat,
+			lng1 : coord.lng,
+			lat2 : coord.lat - 1,
+			lng2 : coord.lng
+		} ) * radius )
+	};
+};
 
 module.exports = wgsMod;

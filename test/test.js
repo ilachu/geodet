@@ -28,6 +28,15 @@ describe( 'wgsMod',function () {
 				lng2 : 80.2090117
 			};
 			assert.equal(wgsMod.coordDistance( coords ) , 0 );
-		} )
+		} );
 	} );
+	describe( '#perimeter ',function () { 
+		it( 'gives the range of co-ordinates to search for in db',function () {
+			coord = { 
+				lat : 1,
+				lng : 1
+			};
+			assert( wgsMod.perimeter( coord , 500 ) , true );
+		} );
+	} ); 
 } );
