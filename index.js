@@ -44,6 +44,7 @@ wgsMod.coordDistance = function ( coords ) {  //Vincenty's formulae
 			sinAlpha = ( cos( U1 ) * cos( U2 ) * sin( lambda ) ) / sin ( sigma );
 			cos2Alpha = 1 - sinAlpha.pow( 2 );
 			cosTwoSigmaBaseM = cosSigma - ( ( 2 * sin( U1 ) * sin( U2 ) ) / cos2Alpha );
+			if (!cosTwoSigmaBaseM) cosTwoSigmaBaseM = 0; //equator
 			C = ( f / 16 ) * cos2Alpha * ( 4 + f * ( 4 - 3 * cos2Alpha ));
 			lambdaP = lambda;
 			lambda =  L + ( 1 - C ) * f * sinAlpha * 
@@ -73,7 +74,7 @@ wgsMod.perimeter = function ( coord , radius ) {
 			lat2 : coord.lat + 1,
 			lng2 : coord.lng
 		} ) * radius ),
-		minLng : coord.lat - ( 1 / wgsMod.coordDistance ( {
+		minLng : coord.lng - ( 1 / wgsMod.coordDistance ( {
 			lat1 : coord.lat,
 			lng1 : coord.lng,
 			lat2 : coord.lat,
